@@ -1,0 +1,35 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: envoy-demo
+  labels:
+    app: envoy-demo
+spec:
+  template:
+    metadata:
+      labels:
+        app: envoy-demo
+    spec:
+      containers:
+      - name: k8s-view
+        image: luguoxiang/envoy_demo
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 18000
+          name: grpc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: envoy-demo
+  labels:
+    app: envoy-demo
+spec:
+  type: ClusterIP
+  ports:
+  - name: grpc
+    port: 18000
+    targetPort: 18000
+  selector:
+    app: envoy-demo
+

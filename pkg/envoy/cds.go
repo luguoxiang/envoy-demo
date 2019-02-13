@@ -19,6 +19,10 @@ func (info *InboundClusterInfo) Name() string {
 	return fmt.Sprintf("inbound|%s:%d", info.PodIP, info.Port)
 }
 
+func (info *InboundClusterInfo) String() string {
+	return fmt.Sprintf("InboundCluster|%s:%d", info.PodIP, info.Port)
+}
+
 func (info *InboundClusterInfo) Version() string {
 	return "1"
 }
@@ -30,6 +34,10 @@ type OutboundClusterInfo struct {
 
 func (info *OutboundClusterInfo) Name() string {
 	return fmt.Sprintf("outbound|%s:%d", info.App, info.Port)
+}
+
+func (info *OutboundClusterInfo) String() string {
+	return fmt.Sprintf("OutboundCluster|%s:%d", info.App, info.Port)
 }
 
 func (info *OutboundClusterInfo) Version() string {

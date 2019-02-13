@@ -21,5 +21,5 @@ WORKDIR /app
 COPY --from=build-env /go/src/github.com/luguoxiang/envoy-demo/envoy_server /app/
 ENV https_proxy ""
 ENV http_proxy ""
-CMD envoy-demo -alsologtostderr
+CMD ./envoy_server -alsologtostderr
 

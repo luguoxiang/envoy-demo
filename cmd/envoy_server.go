@@ -37,15 +37,15 @@ func main() {
 	cds := envoy.NewClustersDiscoveryService()
 	eds := envoy.NewEndpointsDiscoveryService()
 	lds := envoy.NewListenersDiscoveryService(k8sManager)
-	rds := envoy.NewRoutesDiscoveryService()
+	//rds := envoy.NewRoutesDiscoveryService()
 
 	stopper := make(chan struct{})
-	go k8sManager.WatchPods(stopper, cds, eds)
+	go k8sManager.WatchPods(stopper, cds, eds, lds)
 
 	v2.RegisterEndpointDiscoveryServiceServer(grpcServer, eds)
 	v2.RegisterClusterDiscoveryServiceServer(grpcServer, cds)
 	v2.RegisterListenerDiscoveryServiceServer(grpcServer, lds)
-	v2.RegisterRouteDiscoveryServiceServer(grpcServer, rds)
+	//v2.RegisterRouteDiscoveryServiceServer(grpcServer, rds)
 	glog.Infof("grpc server listening %s", grpcPort)
 
 	go func() {

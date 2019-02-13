@@ -39,6 +39,7 @@ var (
 type EnvoyResource interface {
 	Name() string
 	Version() string
+	String() string
 }
 
 type DiscoveryService struct {
@@ -68,8 +69,11 @@ func (ds *DiscoveryService) RemoveResource(name string) {
 	ds.mutex.Lock()
 	defer ds.mutex.Unlock()
 
-	delete(ds.resourceMap, name)
-
+	resource := ds.resourceMap[name]
+	if resource != nil {
+		delete(ds.resourceMap, name)
+		glog.Infof("RemoveResource %s, version=%s", resource.String(), resource.Version())
+	}
 	ds.cond.Broadcast()
 }
 
@@ -85,7 +89,7 @@ func (ds *DiscoveryService) UpdateResource(resource EnvoyResource) {
 			return
 		}
 	}
-	glog.Infof("UpdateResource %s, version=%s", name, resource.Version())
+	glog.Infof("UpdateResource %s, version=%s", resource.String(), resource.Version())
 	ds.resourceMap[name] = resource
 	ds.cond.Broadcast()
 }

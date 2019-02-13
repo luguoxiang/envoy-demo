@@ -25,6 +25,10 @@ func (info *InboundListenerInfo) Name() string {
 	return cluster.Name()
 }
 
+func (info *InboundListenerInfo) String() string {
+	return fmt.Sprintf("InboundListener|%s:%d", info.PodName, info.Port)
+}
+
 func (info *InboundListenerInfo) Version() string {
 	return "1"
 }
@@ -38,6 +42,10 @@ type OutboundListenerInfo struct {
 func (info *OutboundListenerInfo) Name() string {
 	cluster := OutboundClusterInfo{App: info.App, Port: info.Port}
 	return cluster.Name()
+}
+
+func (info *OutboundListenerInfo) String() string {
+	return fmt.Sprintf("OutboundListener|%s:%d", info.App, info.Port)
 }
 
 func (info *OutboundListenerInfo) Version() string {

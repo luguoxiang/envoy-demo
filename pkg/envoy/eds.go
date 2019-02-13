@@ -19,7 +19,7 @@ type AssignmentInfo struct {
 	Version string
 }
 
-func (info AssignmentInfo) String() string {
+func (info *AssignmentInfo) String() string {
 	return fmt.Sprintf("%s|%d", info.PodIP, info.Weight)
 }
 
@@ -32,6 +32,14 @@ type EndpointInfo struct {
 func (info *EndpointInfo) Name() string {
 	cluster := OutboundClusterInfo{App: info.App, Port: info.Port}
 	return cluster.Name()
+}
+
+func (info *EndpointInfo) String() string {
+	var assignments []string
+	for _, assignment := range info.Assignments {
+		assignments = append(assignments, assignment.String())
+	}
+	return fmt.Sprintf("Endpoint|%s:%d|%s", info.App, info.Port, strings.Join(assignments, ","))
 }
 
 func (info *EndpointInfo) Version() string {
@@ -69,6 +77,8 @@ func (eds *EndpointsDiscoveryService) updateResource(pod *kubernetes.PodInfo, re
 		info = resource.(*EndpointInfo)
 	} else if remove {
 		return
+	} else {
+		info.Assignments = map[string]*AssignmentInfo{}
 	}
 
 	if remove {
