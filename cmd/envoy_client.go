@@ -24,7 +24,7 @@ type StreamFunction func(cc *grpc.ClientConn) (StreamClient, error)
 func main() {
 	var serverAddr string
 	var typeUrl string
-	flag.StringVar(&serverAddr, "serverAddr", "localhost:18000", "grpc server address")
+	flag.StringVar(&serverAddr, "serverAddr", "localhost:15010", "grpc server address")
 	urls := []string{
 		envoy.ListenerResource,
 		envoy.ClusterResource,

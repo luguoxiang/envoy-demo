@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2"
+	discovery "github.com/envoyproxy/go-control-plane/envoy/service/discovery/v2"
 	"github.com/golang/glog"
 	"github.com/luguoxiang/envoy-demo/pkg/envoy"
 	"github.com/luguoxiang/envoy-demo/pkg/kubernetes"
@@ -13,7 +14,7 @@ import (
 )
 
 const grpcMaxConcurrentStreams = 1000000
-const grpcPort = "18000"
+const grpcPort = "15010"
 
 func main() {
 	flag.Parse()
@@ -39,6 +40,7 @@ func main() {
 	lds := envoy.NewListenersDiscoveryService(k8sManager)
 	//rds := envoy.NewRoutesDiscoveryService()
 
+	ads := envoy.NewAggregatedDiscoveryService(cds, eds, lds)
 	stopper := make(chan struct{})
 	go k8sManager.WatchPods(stopper, cds, eds, lds)
 
@@ -46,6 +48,7 @@ func main() {
 	v2.RegisterClusterDiscoveryServiceServer(grpcServer, cds)
 	v2.RegisterListenerDiscoveryServiceServer(grpcServer, lds)
 	//v2.RegisterRouteDiscoveryServiceServer(grpcServer, rds)
+	discovery.RegisterAggregatedDiscoveryServiceServer(grpcServer, ads)
 	glog.Infof("grpc server listening %s", grpcPort)
 
 	go func() {

@@ -15,7 +15,7 @@ spec:
         image: luguoxiang/envoy_demo
         imagePullPolicy: Always
         ports:
-        - containerPort: 18000
+        - containerPort: 15010
           name: grpc
 ---
 apiVersion: v1
@@ -28,8 +28,41 @@ spec:
   type: ClusterIP
   ports:
   - name: grpc
-    port: 18000
-    targetPort: 18000
+    port: 15010
+    targetPort: 15010
   selector:
     app: envoy-demo
-
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: zipkin
+  labels:
+    app: zipkin
+spec:
+  template:
+    metadata:
+      labels:
+        app: zipkin
+    spec:
+      containers:
+      - name: zipkin
+        image: openzipkin/zipkin:2.11
+        ports:
+        - containerPort: 9411
+          name: zipkin
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zipkin
+  labels:
+    app: zipkin
+spec:
+  type: ClusterIP
+  selector:
+    app: traffic-zipkin
+  ports:
+  - name: zipkin
+    port: 9411
+    targetPort: 9411

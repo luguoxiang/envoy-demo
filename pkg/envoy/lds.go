@@ -161,6 +161,7 @@ func (lds *ListenersDiscoveryService) CreateVirtualListener() *v2.Listener {
 				},
 			},
 		},
+
 		UseOriginalDst: &types.BoolValue{Value: true},
 
 		FilterChains: []listener.FilterChain{filterChain},
@@ -196,6 +197,9 @@ func (info *OutboundListenerInfo) CreateListener() *v2.Listener {
 				},
 				},
 			},
+		},
+		Tracing: &hcm.HttpConnectionManager_Tracing{
+			OperationName: hcm.EGRESS,
 		},
 		HttpFilters: []*hcm.HttpFilter{{
 			Name: RouterHttpFilter,
@@ -262,6 +266,9 @@ func (info *InboundListenerInfo) CreateListener() *v2.Listener {
 				},
 				},
 			},
+		},
+		Tracing: &hcm.HttpConnectionManager_Tracing{
+			OperationName: hcm.INGRESS,
 		},
 		HttpFilters: []*hcm.HttpFilter{{
 			Name: RouterHttpFilter,

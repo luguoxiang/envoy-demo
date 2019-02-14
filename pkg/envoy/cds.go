@@ -127,7 +127,11 @@ func (cds *ClustersDiscoveryService) BuildResource(resourceMap map[string]EnvoyR
 				ConnectTimeout: connectionTimeout,
 				Type:           v2.Cluster_EDS,
 				EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
-					EdsConfig: MakeXdsCluster(),
+					EdsConfig: &core.ConfigSource{
+						ConfigSourceSpecifier: &core.ConfigSource_Ads{
+							Ads: &core.AggregatedConfigSource{},
+						},
+					},
 				},
 			}
 		default:

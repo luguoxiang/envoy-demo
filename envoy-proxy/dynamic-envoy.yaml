@@ -4,18 +4,13 @@ admin:
     socket_address: { address: 0.0.0.0, port_value: 15000 }
 
 dynamic_resources:
-  lds_config:
-    api_config_source:
-      api_type: GRPC
-      grpc_services:
-        envoy_grpc:
-          cluster_name: xds_cluster
-  cds_config:
-    api_config_source:
-      api_type: GRPC
-      grpc_services:
-        envoy_grpc:
-          cluster_name: xds_cluster
+  lds_config: {ads: {}}
+  cds_config: {ads: {}}
+  ads_config:
+    api_type: GRPC
+    grpc_services:
+      envoy_grpc:
+        cluster_name: xds_cluster
 
 tracing:
   http:
@@ -31,7 +26,7 @@ static_resources:
     type: STRICT_DNS
     lb_policy: ROUND_ROBIN
     http2_protocol_options: {}
-    hosts: [{ socket_address: { address: envoy-demo, port_value: 18000}}]
+    hosts: [{ socket_address: { address: envoy-demo, port_value: 15010}}]
   - name: zipkin
     connect_timeout: 1s
     type: strict_dns

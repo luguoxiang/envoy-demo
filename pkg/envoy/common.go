@@ -21,7 +21,6 @@ const (
 	ClusterResource       = typePrefix + "Cluster"
 	RouteResource         = typePrefix + "RouteConfiguration"
 	ListenerResource      = typePrefix + "Listener"
-	XdsCluster            = "xds_cluster"
 	RouterHttpFilter      = "envoy.router"
 	HTTPConnectionManager = "envoy.http_connection_manager"
 	ENVOY_PROXY_PORT      = 10000
@@ -135,6 +134,27 @@ func (ds *DiscoveryService) FetchResource(req *v2.DiscoveryRequest, builder Resp
 	return builder(resourceMap, currentVersion, req.Node)
 }
 
+func (ds *DiscoveryService) ProcessRequest(req *v2.DiscoveryRequest, builder ResponseBuilder) (*v2.DiscoveryResponse, error) {
+	ds.mutex.Lock()
+
+	var currentVersion string
+	var resourceMap map[string]EnvoyResource
+	for {
+		resourceMap, currentVersion = ds.GetResources(req.ResourceNames)
+
+		if currentVersion == req.VersionInfo {
+			glog.Infof("Waiting update on %s for %v, current version=%s", req.TypeUrl, req.ResourceNames, currentVersion)
+			ds.cond.Wait()
+		} else {
+			break
+		}
+	}
+
+	ds.mutex.Unlock()
+
+	return builder(resourceMap, currentVersion, req.Node)
+}
+
 func (ds *DiscoveryService) ProcessStream(stream stream, builder ResponseBuilder) error {
 	for {
 		req, err := stream.Recv()
@@ -151,50 +171,13 @@ func (ds *DiscoveryService) ProcessStream(stream stream, builder ResponseBuilder
 		glog.Infof("Request recevied: type=%s, nonce=%s, version=%s, resource=%s, node=%s",
 			req.TypeUrl, req.GetResponseNonce(), req.VersionInfo, strings.Join(req.ResourceNames, ","), req.Node.Id)
 
-		ds.mutex.Lock()
-
-		var currentVersion string
-		var resourceMap map[string]EnvoyResource
-		for {
-			resourceMap, currentVersion = ds.GetResources(req.ResourceNames)
-
-			if currentVersion == req.VersionInfo {
-				glog.Infof("Waiting update on %s for %v, current version=%s", req.TypeUrl, req.ResourceNames, currentVersion)
-				ds.cond.Wait()
-			} else {
-				break
-			}
-		}
-
-		ds.mutex.Unlock()
-
-		resp, err := builder(resourceMap, currentVersion, req.Node)
+		resp, err := ds.ProcessRequest(req, builder)
 		if err != nil {
 			glog.Errorf(err.Error())
 			return err
 		}
 		glog.Infof("Send %s, version=%s", req.TypeUrl, resp.VersionInfo)
 		stream.Send(resp)
-	}
-}
-
-func MakeXdsCluster() *core.ConfigSource {
-	grpcService := &core.GrpcService{
-		TargetSpecifier: &core.GrpcService_EnvoyGrpc_{
-			EnvoyGrpc: &core.GrpcService_EnvoyGrpc{
-				ClusterName: XdsCluster,
-			},
-		},
-	}
-	return &core.ConfigSource{
-		ConfigSourceSpecifier: &core.ConfigSource_ApiConfigSource{
-			ApiConfigSource: &core.ApiConfigSource{
-				ApiType: core.ApiConfigSource_GRPC,
-				GrpcServices: []*core.GrpcService{
-					grpcService,
-				},
-			},
-		},
 	}
 }
 
