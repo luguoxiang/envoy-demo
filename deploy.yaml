@@ -61,7 +61,7 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app: traffic-zipkin
+    app: zipkin
   ports:
   - name: zipkin
     port: 9411

@@ -24,7 +24,9 @@ type StreamFunction func(cc *grpc.ClientConn) (StreamClient, error)
 func main() {
 	var serverAddr string
 	var typeUrl string
+	var nodeId string
 	flag.StringVar(&serverAddr, "serverAddr", "localhost:15010", "grpc server address")
+	flag.StringVar(&nodeId, "nodeId", "", "nodeId")
 	urls := []string{
 		envoy.ListenerResource,
 		envoy.ClusterResource,
@@ -52,7 +54,7 @@ func main() {
 	var request v2.DiscoveryRequest
 	request.TypeUrl = typeUrl
 
-	request.Node = &core.Node{Id: "sidecar~10.1.21.52~httpbin-576bb8fcbc-q8v46.default~default.svc.cluster.local", Cluster: "httpbin"}
+	request.Node = &core.Node{Id: nodeId, Cluster: "httpbin"}
 	err = ads.Send(&request)
 	if err != nil {
 		panic(err)
