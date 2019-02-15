@@ -47,8 +47,8 @@ func (pod *PodInfo) Weight() uint32 {
 }
 
 func (pod *PodInfo) String() string {
-	return fmt.Sprintf("Pod %s@%s",
-		pod.Name, pod.Namespace)
+	return fmt.Sprintf("Pod %s@%s PodIP %s",
+		pod.Name, pod.Namespace, pod.PodIP)
 }
 
 func NewPodInfo(pod *v1.Pod) *PodInfo {

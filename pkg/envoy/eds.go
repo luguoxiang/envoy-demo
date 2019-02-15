@@ -71,14 +71,19 @@ func (eds *EndpointsDiscoveryService) updateResource(pod *kubernetes.PodInfo, re
 		return
 	}
 
-	info := &EndpointInfo{App: app, Port: port}
+	info := &EndpointInfo{
+		App:         app,
+		Port:        port,
+		Assignments: map[string]*AssignmentInfo{},
+	}
 	resource := eds.GetResource(info.Name())
 	if resource != nil {
-		info = resource.(*EndpointInfo)
+		old := resource.(*EndpointInfo)
+		for k, v := range old.Assignments {
+			info.Assignments[k] = v
+		}
 	} else if remove {
 		return
-	} else {
-		info.Assignments = map[string]*AssignmentInfo{}
 	}
 
 	if remove {
