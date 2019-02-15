@@ -25,14 +25,17 @@ func main() {
 	var serverAddr string
 	var typeUrl string
 	var nodeId string
+	var resource string
 	flag.StringVar(&serverAddr, "serverAddr", "localhost:15010", "grpc server address")
 	flag.StringVar(&nodeId, "nodeId", "", "nodeId")
+	flag.StringVar(&resource, "resource", "", "resource")
 	urls := []string{
 		envoy.ListenerResource,
 		envoy.ClusterResource,
 		envoy.RouteResource,
 		envoy.EndpointResource,
 	}
+
 	flag.StringVar(&typeUrl, "typeUrl", envoy.ListenerResource, fmt.Sprintf("one of %v", urls))
 	flag.Parse()
 	fmt.Printf("connecting %s\n", serverAddr)
@@ -53,7 +56,9 @@ func main() {
 
 	var request v2.DiscoveryRequest
 	request.TypeUrl = typeUrl
-
+	if resource != "" {
+		request.ResourceNames = []string{resource}
+	}
 	request.Node = &core.Node{Id: nodeId, Cluster: "httpbin"}
 	err = ads.Send(&request)
 	if err != nil {

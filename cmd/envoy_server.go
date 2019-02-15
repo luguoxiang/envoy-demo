@@ -4,7 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/envoyproxy/go-control-plane/envoy/api/v2"
+	//"github.com/envoyproxy/go-control-plane/envoy/api/v2"
 	discovery "github.com/envoyproxy/go-control-plane/envoy/service/discovery/v2"
 	"github.com/golang/glog"
 	"github.com/luguoxiang/envoy-demo/pkg/envoy"
@@ -44,9 +44,9 @@ func main() {
 	stopper := make(chan struct{})
 	go k8sManager.WatchPods(stopper, cds, eds, lds)
 
-	v2.RegisterEndpointDiscoveryServiceServer(grpcServer, eds)
-	v2.RegisterClusterDiscoveryServiceServer(grpcServer, cds)
-	v2.RegisterListenerDiscoveryServiceServer(grpcServer, lds)
+	//v2.RegisterEndpointDiscoveryServiceServer(grpcServer, eds)
+	//v2.RegisterClusterDiscoveryServiceServer(grpcServer, cds)
+	//v2.RegisterListenerDiscoveryServiceServer(grpcServer, lds)
 	//v2.RegisterRouteDiscoveryServiceServer(grpcServer, rds)
 	discovery.RegisterAggregatedDiscoveryServiceServer(grpcServer, ads)
 	glog.Infof("grpc server listening %s", grpcPort)

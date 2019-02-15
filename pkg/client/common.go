@@ -24,9 +24,6 @@ func doClean(in interface{}) interface{} {
 			result[k] = v
 
 		}
-		if len(result) == 0 {
-			return nil
-		}
 		if len(result) == 1 {
 			for _, skipKey := range []string{"kind", "fields", "structvalue", "string_value", "attributes", "stringvalue", "boolvalue", "listvalue"} {
 				if result[skipKey] != nil {
@@ -41,9 +38,6 @@ func doClean(in interface{}) interface{} {
 		var result []interface{}
 		for _, elem := range listResult {
 			result = append(result, doClean(elem))
-		}
-		if len(result) == 0 {
-			return nil
 		}
 		return result
 	}
