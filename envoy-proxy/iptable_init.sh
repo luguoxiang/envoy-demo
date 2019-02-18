@@ -33,11 +33,12 @@ iptables -t nat -A ENVOY_OUTPUT -p tcp --dport ${PROXY_MANAGE_PORT} -j RETURN
 iptables -t nat -A ENVOY_OUTPUT -m owner --uid-owner ${PROXY_UID} -j RETURN
 iptables -t nat -A ENVOY_OUTPUT -m owner --gid-owner ${PROXY_UID} -j RETURN
 
-# Redirect remaining outbound traffic to Envoy
-iptables -t nat -A ENVOY_OUTPUT -j ENVOY_REDIRECT
-
 # Skip redirection for Envoy-aware applications and
 # container-to-container traffic both of which explicitly use
 # localhost.
 iptables -t nat -A ENVOY_OUTPUT -d 127.0.0.1/32 -j RETURN
+
+# Redirect remaining outbound traffic to Envoy
+iptables -t nat -A ENVOY_OUTPUT -j ENVOY_REDIRECT
+
 iptables -L -t nat 
