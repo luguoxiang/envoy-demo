@@ -103,5 +103,5 @@ func (rds *RoutesDiscoveryService) BuildResource(resourceMap map[string]EnvoyRes
 		})
 	}
 
-	return MakeResource(routes, RouteResource, "1")
+	return MakeResource(routes, RouteResource, version)
 }
