@@ -2,7 +2,6 @@ package envoy
 
 import (
 	"context"
-	"fmt"
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2"
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/core"
 	"github.com/envoyproxy/go-control-plane/envoy/api/v2/listener"
@@ -12,41 +11,6 @@ import (
 	types "github.com/gogo/protobuf/types"
 	"github.com/luguoxiang/envoy-demo/pkg/kubernetes"
 )
-
-type InboundListenerInfo struct {
-	PodIP   string
-	Port    uint32
-	PodName string
-}
-
-func (info *InboundListenerInfo) Name() string {
-	cluster := InboundClusterInfo{PodIP: info.PodIP, Port: info.Port}
-	return cluster.Name()
-}
-
-func (info *InboundListenerInfo) String() string {
-	return fmt.Sprintf("InboundListener|%s:%d", info.PodName, info.Port)
-}
-
-func (info *InboundListenerInfo) Version() string {
-	return "1"
-}
-
-type OutboundListenerInfo struct {
-	Port uint32
-}
-
-func (info *OutboundListenerInfo) Name() string {
-	return fmt.Sprintf("OutboundListener|%d", info.Port)
-}
-
-func (info *OutboundListenerInfo) String() string {
-	return info.Name()
-}
-
-func (info *OutboundListenerInfo) Version() string {
-	return "1"
-}
 
 type ListenersDiscoveryService struct {
 	DiscoveryService
@@ -152,130 +116,6 @@ func (lds *ListenersDiscoveryService) CreateVirtualListener() *v2.Listener {
 		},
 
 		UseOriginalDst: &types.BoolValue{Value: true},
-
-		FilterChains: []listener.FilterChain{filterChain},
-	}
-}
-
-func (info *OutboundListenerInfo) CreateListener() *v2.Listener {
-	manager := &hcm.HttpConnectionManager{
-		CodecType:  hcm.AUTO,
-		StatPrefix: info.Name(),
-		RouteSpecifier: &hcm.HttpConnectionManager_Rds{
-			Rds: &hcm.Rds{
-				ConfigSource: core.ConfigSource{
-					ConfigSourceSpecifier: &core.ConfigSource_Ads{
-						Ads: &core.AggregatedConfigSource{},
-					},
-				},
-				RouteConfigName: fmt.Sprintf("%d", info.Port),
-			},
-		},
-
-		Tracing: &hcm.HttpConnectionManager_Tracing{
-			OperationName: hcm.EGRESS,
-		},
-		HttpFilters: []*hcm.HttpFilter{{
-			Name: RouterHttpFilter,
-		}},
-	}
-
-	filterConfig, err := MessageToStruct(manager)
-	if err != nil {
-		panic(err.Error())
-	}
-	filterChain := listener.FilterChain{
-		Filters: []listener.Filter{{
-			Name:       HTTPConnectionManager,
-			ConfigType: &listener.Filter_Config{Config: filterConfig},
-		}},
-	}
-
-	return &v2.Listener{
-		Name: info.Name(),
-		Address: core.Address{
-			Address: &core.Address_SocketAddress{
-				SocketAddress: &core.SocketAddress{
-					Protocol: core.TCP,
-					Address:  "0.0.0.0",
-					PortSpecifier: &core.SocketAddress_PortValue{
-						PortValue: info.Port,
-					},
-				},
-			},
-		},
-		DeprecatedV1: &v2.Listener_DeprecatedV1{
-			BindToPort: &types.BoolValue{Value: false},
-		},
-
-		FilterChains: []listener.FilterChain{filterChain},
-	}
-}
-
-func (info *InboundListenerInfo) CreateListener() *v2.Listener {
-	manager := &hcm.HttpConnectionManager{
-		CodecType:  hcm.AUTO,
-		StatPrefix: info.Name(),
-		RouteSpecifier: &hcm.HttpConnectionManager_RouteConfig{
-			RouteConfig: &v2.RouteConfiguration{
-				Name: info.Name(),
-				VirtualHosts: []route.VirtualHost{{
-					Name:    fmt.Sprintf("%s_vh", info.Name()),
-					Domains: []string{"*"},
-					Routes: []route.Route{{
-						Match: route.RouteMatch{
-							PathSpecifier: &route.RouteMatch_Prefix{
-								Prefix: "/",
-							},
-						},
-						Action: &route.Route_Route{
-							Route: &route.RouteAction{
-								ClusterSpecifier: &route.RouteAction_Cluster{
-									Cluster: info.Name(),
-								},
-							},
-						},
-					},
-					},
-				},
-				},
-			},
-		},
-		Tracing: &hcm.HttpConnectionManager_Tracing{
-			OperationName: hcm.INGRESS,
-		},
-		HttpFilters: []*hcm.HttpFilter{{
-			Name: RouterHttpFilter,
-		}},
-	}
-
-	filterConfig, err := MessageToStruct(manager)
-	if err != nil {
-		panic(err.Error())
-	}
-	filterChain := listener.FilterChain{
-		Filters: []listener.Filter{{
-			Name:       HTTPConnectionManager,
-			ConfigType: &listener.Filter_Config{Config: filterConfig},
-		}},
-	}
-
-	return &v2.Listener{
-		Name: info.Name(),
-		Address: core.Address{
-			Address: &core.Address_SocketAddress{
-				SocketAddress: &core.SocketAddress{
-					Protocol: core.TCP,
-					Address:  info.PodIP,
-					PortSpecifier: &core.SocketAddress_PortValue{
-						PortValue: info.Port,
-					},
-				},
-			},
-		},
-		DeprecatedV1: &v2.Listener_DeprecatedV1{
-			BindToPort: &types.BoolValue{Value: false},
-		},
 
 		FilterChains: []listener.FilterChain{filterChain},
 	}
