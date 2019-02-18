@@ -26,6 +26,10 @@ const (
 	ENVOY_PROXY_PORT      = 10000
 )
 
+const (
+	APP_NAMESPACE = "default"
+)
+
 var (
 	DemoAppSet = map[string]uint32{
 		"productpage": 9080,

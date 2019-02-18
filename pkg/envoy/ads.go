@@ -12,13 +12,15 @@ type AggregatedDiscoveryService struct {
 	cds *ClustersDiscoveryService
 	eds *EndpointsDiscoveryService
 	lds *ListenersDiscoveryService
+	rds *RoutesDiscoveryService
 }
 
 func NewAggregatedDiscoveryService(cds *ClustersDiscoveryService,
 	eds *EndpointsDiscoveryService,
-	lds *ListenersDiscoveryService) *AggregatedDiscoveryService {
+	lds *ListenersDiscoveryService,
+	rds *RoutesDiscoveryService) *AggregatedDiscoveryService {
 	return &AggregatedDiscoveryService{
-		cds: cds, eds: eds, lds: lds,
+		cds: cds, eds: eds, lds: lds, rds: rds,
 	}
 }
 
@@ -56,7 +58,8 @@ func (ads *AggregatedDiscoveryService) StreamAggregatedResources(stream discover
 				resp, err = ads.eds.ProcessRequest(req, ads.eds.BuildResource)
 			case ClusterResource:
 				resp, err = ads.cds.ProcessRequest(req, ads.cds.BuildResource)
-			//case RouteResource:
+			case RouteResource:
+				resp, err = ads.rds.ProcessRequest(req, ads.rds.BuildResource)
 			case ListenerResource:
 				resp, err = ads.lds.ProcessRequest(req, ads.lds.BuildResource)
 			default:

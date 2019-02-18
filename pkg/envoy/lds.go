@@ -10,7 +10,6 @@ import (
 	hcm "github.com/envoyproxy/go-control-plane/envoy/config/filter/network/http_connection_manager/v2"
 	"github.com/gogo/protobuf/proto"
 	types "github.com/gogo/protobuf/types"
-	"github.com/golang/glog"
 	"github.com/luguoxiang/envoy-demo/pkg/kubernetes"
 )
 
@@ -34,18 +33,15 @@ func (info *InboundListenerInfo) Version() string {
 }
 
 type OutboundListenerInfo struct {
-	App       string
-	Port      uint32
-	ClusterIP string
+	Port uint32
 }
 
 func (info *OutboundListenerInfo) Name() string {
-	cluster := OutboundClusterInfo{App: info.App, Port: info.Port}
-	return cluster.Name()
+	return fmt.Sprintf("OutboundListener|%d", info.Port)
 }
 
 func (info *OutboundListenerInfo) String() string {
-	return fmt.Sprintf("OutboundListener|%s:%d", info.App, info.Port)
+	return info.Name()
 }
 
 func (info *OutboundListenerInfo) Version() string {
@@ -54,13 +50,11 @@ func (info *OutboundListenerInfo) Version() string {
 
 type ListenersDiscoveryService struct {
 	DiscoveryService
-	k8sManager *kubernetes.K8sResourceManager
 }
 
-func NewListenersDiscoveryService(k8sManager *kubernetes.K8sResourceManager) *ListenersDiscoveryService {
+func NewListenersDiscoveryService() *ListenersDiscoveryService {
 	return &ListenersDiscoveryService{
 		DiscoveryService: NewDiscoveryService(),
-		k8sManager:       k8sManager,
 	}
 }
 
@@ -72,16 +66,11 @@ func (lds *ListenersDiscoveryService) updateResource(pod *kubernetes.PodInfo, re
 		return
 	}
 
-	clusterIp, err := lds.k8sManager.GetServiceClusterIP(app, "default")
-	if err != nil {
-		glog.Fatalf("Could not get cluster ip for %s", app)
-		panic(err.Error())
-	}
-	outboundInfo := &OutboundListenerInfo{App: app, Port: port, ClusterIP: clusterIp}
+	outboundInfo := &OutboundListenerInfo{Port: port}
 	inboundInfo := &InboundListenerInfo{PodIP: pod.PodIP, Port: port, PodName: pod.Name}
 	if remove {
 		lds.RemoveResource(inboundInfo.Name())
-		lds.RemoveResource(outboundInfo.Name())
+		//do not remove outbound listener
 	} else {
 		lds.UpdateResource(inboundInfo)
 		lds.UpdateResource(outboundInfo)
@@ -169,35 +158,20 @@ func (lds *ListenersDiscoveryService) CreateVirtualListener() *v2.Listener {
 }
 
 func (info *OutboundListenerInfo) CreateListener() *v2.Listener {
-	routeAction := &route.RouteAction{
-		ClusterSpecifier: &route.RouteAction_Cluster{
-			Cluster: info.Name(),
-		},
-	}
 	manager := &hcm.HttpConnectionManager{
 		CodecType:  hcm.AUTO,
 		StatPrefix: info.Name(),
-		RouteSpecifier: &hcm.HttpConnectionManager_RouteConfig{
-			RouteConfig: &v2.RouteConfiguration{
-				Name: info.Name(),
-				VirtualHosts: []route.VirtualHost{{
-					Name:    fmt.Sprintf("%s_vh", info.Name()),
-					Domains: []string{"*"},
-					Routes: []route.Route{{
-						Match: route.RouteMatch{
-							PathSpecifier: &route.RouteMatch_Prefix{
-								Prefix: "/",
-							},
-						},
-						Action: &route.Route_Route{
-							Route: routeAction,
-						},
-					},
+		RouteSpecifier: &hcm.HttpConnectionManager_Rds{
+			Rds: &hcm.Rds{
+				ConfigSource: core.ConfigSource{
+					ConfigSourceSpecifier: &core.ConfigSource_Ads{
+						Ads: &core.AggregatedConfigSource{},
 					},
 				},
-				},
+				RouteConfigName: fmt.Sprintf("%d", info.Port),
 			},
 		},
+
 		Tracing: &hcm.HttpConnectionManager_Tracing{
 			OperationName: hcm.EGRESS,
 		},
@@ -223,7 +197,7 @@ func (info *OutboundListenerInfo) CreateListener() *v2.Listener {
 			Address: &core.Address_SocketAddress{
 				SocketAddress: &core.SocketAddress{
 					Protocol: core.TCP,
-					Address:  info.ClusterIP,
+					Address:  "0.0.0.0",
 					PortSpecifier: &core.SocketAddress_PortValue{
 						PortValue: info.Port,
 					},

@@ -65,7 +65,7 @@ func (cds *ClustersDiscoveryService) updateResource(pod *kubernetes.PodInfo, rem
 	inboundInfo := &InboundClusterInfo{PodIP: pod.PodIP, Port: port}
 	if remove {
 		cds.RemoveResource(inboundInfo.Name())
-		cds.RemoveResource(outboundInfo.Name())
+		//do not remove outbound cluster
 	} else {
 		cds.UpdateResource(inboundInfo)
 		cds.UpdateResource(outboundInfo)

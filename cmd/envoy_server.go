@@ -37,10 +37,10 @@ func main() {
 	}
 	cds := envoy.NewClustersDiscoveryService()
 	eds := envoy.NewEndpointsDiscoveryService()
-	lds := envoy.NewListenersDiscoveryService(k8sManager)
-	//rds := envoy.NewRoutesDiscoveryService()
+	lds := envoy.NewListenersDiscoveryService()
+	rds := envoy.NewRoutesDiscoveryService(k8sManager)
 
-	ads := envoy.NewAggregatedDiscoveryService(cds, eds, lds)
+	ads := envoy.NewAggregatedDiscoveryService(cds, eds, lds, rds)
 	stopper := make(chan struct{})
 	go k8sManager.WatchPods(stopper, cds, eds, lds)
 
