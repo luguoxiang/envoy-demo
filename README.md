@@ -33,6 +33,12 @@ kubectl port-forward (pod_name) 15000 &
 access http://localhost:15000
 ```
 
+## access zipkin UI
+```
+kubectl port-forward deployment/zipkin 9411 &
+access http://localhost:9411
+```
+
 ## Change endpoint weight
 ```
 kubectl annotate pod (pod name) "demo.envoy.weight=weight" --overwrite
