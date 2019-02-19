@@ -4,7 +4,7 @@ kubectl apply -f deploy.yaml
 kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.0/samples/bookinfo/platform/kube/bookinfo.yaml
 ```
 
-# Start envoy
+# Quick start
 ## Run envoy-proxy/run_docker.sh
 ```
 kubectl get pod (pod_name) -o=jsonpath='{.status.containerStatuses[0].containerID}'
