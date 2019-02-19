@@ -27,6 +27,11 @@ docker ps --filter "label=envoy.demo"
 docker logs (docker_id)
 ```
 
+## Query bookinfo service
+```
+kubectl run demo-client --image tutum/curl curl productpage:9080/productpage --restart=OnFailure
+```
+
 ## access admin UI
 ```
 kubectl port-forward (pod_name) 15000 &
