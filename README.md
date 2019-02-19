@@ -81,5 +81,9 @@ for example:
 ```
 Install istio
 kubectl port-forward deployment/istio-pilot -n istio-system 15010 &
-./envoy-client -nodeId (pod_name) -typeUrl (typeUrl) -resource (resource)
+./envoy-client -nodeId (node_id) -typeUrl (typeUrl) -resource (resource)
+```
+Node id can be found from following command result:
+```
+kubectl exec (pod name) -c istio-proxy cat /etc/istio/proxy/envoy-rev0.json
 ```
