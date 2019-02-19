@@ -16,6 +16,10 @@ $ kubectl get pod productpage-v1-54d799c966-hhw5d -o=jsonpath='{.status.containe
 docker://249adedbca3900acc33b63db724a85c0f2b38fb6a6c9a970530f929cc4c3dd9c
 $ sh envoy-proxy/run_docker.sh 249adedbca3900acc33b63db724a85c0f2b38fb6a6c9a970530f929cc4c3dd9c productpage productpage-v1-54d799c966-hhw5d
 ```
+Note that envoy-proxy/run_docker.sh must be run on the node of the pod, check NODE column of the command result:
+```
+kubectl get pod (pod_name) -o wide
+```
 
 ## List running envoy and check log
 ```
