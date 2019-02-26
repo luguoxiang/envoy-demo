@@ -121,7 +121,7 @@ func (client *DockerClient) CreateDockerInstance(podInfo *kubernetes.PodInfo, se
 		fmt.Sprintf("MY_POD_IP=%s", podInfo.PodIP),
 
 		////used for envoy's --service-cluster option
-		fmt.Sprintf("SERVICE_CLUSTER=%s.%s", serviceCluster, podInfo.Namespace),
+		fmt.Sprintf("SERVICE_CLUSTER=%s", serviceCluster),
 		fmt.Sprintf("NODE_ID=%s.%s", podInfo.Name, podInfo.Namespace),
 	}
 
