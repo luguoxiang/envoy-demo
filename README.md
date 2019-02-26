@@ -8,7 +8,7 @@ kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.0/sampl
 ## Start envoy for pod
 ```
 kubectl annotate pod (pod_name) "demo.envoy.enabled=true"
-
+```
 ## List running envoy and check log
 ```
 kubectl exec envoy-demo-kdkmr -- ./envoy_manage -list
