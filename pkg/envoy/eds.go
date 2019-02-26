@@ -99,6 +99,10 @@ func (eds *EndpointsDiscoveryService) updateResource(pod *kubernetes.PodInfo, re
 
 }
 
+func (eds *EndpointsDiscoveryService) PodValid(pod *kubernetes.PodInfo) bool {
+	return pod.PodIP != ""
+}
+
 func (eds *EndpointsDiscoveryService) PodAdded(pod *kubernetes.PodInfo) {
 	eds.updateResource(pod, false)
 }

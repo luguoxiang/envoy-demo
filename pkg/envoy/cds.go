@@ -72,6 +72,10 @@ func (cds *ClustersDiscoveryService) updateResource(pod *kubernetes.PodInfo, rem
 	}
 }
 
+func (cds *ClustersDiscoveryService) PodValid(pod *kubernetes.PodInfo) bool {
+	return pod.PodIP != ""
+}
+
 func (cds *ClustersDiscoveryService) PodAdded(pod *kubernetes.PodInfo) {
 	cds.updateResource(pod, false)
 }

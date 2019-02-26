@@ -26,7 +26,7 @@ func (lds *ListenersDiscoveryService) updateResource(pod *kubernetes.PodInfo, re
 	app := pod.Labels["app"]
 
 	port := DemoAppSet[app]
-	if port == 0 || pod.PodIP == "" {
+	if port == 0 {
 		return
 	}
 
@@ -39,6 +39,10 @@ func (lds *ListenersDiscoveryService) updateResource(pod *kubernetes.PodInfo, re
 		lds.UpdateResource(inboundInfo)
 		lds.UpdateResource(outboundInfo)
 	}
+}
+
+func (lds *ListenersDiscoveryService) PodValid(pod *kubernetes.PodInfo) bool {
+	return pod.PodIP != ""
 }
 
 func (lds *ListenersDiscoveryService) PodAdded(pod *kubernetes.PodInfo) {

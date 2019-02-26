@@ -13,6 +13,7 @@ import (
 )
 
 type PodEventHandler interface {
+	PodValid(pod *PodInfo) bool
 	PodAdded(pod *PodInfo)
 	PodDeleted(pod *PodInfo)
 	PodUpdated(oldPod, newPod *PodInfo)
@@ -57,24 +58,42 @@ func (manager *K8sResourceManager) WatchPods(stopper chan struct{}, handlers ...
 			AddFunc: func(obj interface{}) {
 				pod := NewPodInfo(obj.(*v1.Pod))
 				for _, h := range handlers {
-					h.PodAdded(pod)
+					if h.PodValid(pod) {
+						h.PodAdded(pod)
+					}
 				}
 			},
 			DeleteFunc: func(obj interface{}) {
 				pod := NewPodInfo(obj.(*v1.Pod))
 				for _, h := range handlers {
-					h.PodDeleted(pod)
+					if h.PodValid(pod) {
+						h.PodDeleted(pod)
+					}
 				}
 			},
 			UpdateFunc: func(oldObj, newObj interface{}) {
 				oldPod := NewPodInfo(oldObj.(*v1.Pod))
 				newPod := NewPodInfo(newObj.(*v1.Pod))
-				if reflect.DeepEqual(oldPod, newPod) {
-					return
-				}
 
+				if oldPod != nil && newPod != nil {
+					newVersion := newPod.ResourceVersion
+					//ignore ResourceVersion diff
+					newPod.ResourceVersion = oldPod.ResourceVersion
+					if reflect.DeepEqual(oldPod, newPod) {
+						return
+					}
+					newPod.ResourceVersion = newVersion
+				}
 				for _, h := range handlers {
-					h.PodUpdated(oldPod, newPod)
+					oldValid := (h.PodValid(oldPod))
+					newValid := (h.PodValid(newPod))
+					if !oldValid && newValid {
+						h.PodAdded(newPod)
+					} else if oldValid && !newValid {
+						h.PodDeleted(oldPod)
+					} else if oldValid && newValid {
+						h.PodUpdated(oldPod, newPod)
+					}
 				}
 			},
 		},
