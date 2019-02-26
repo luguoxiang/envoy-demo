@@ -7,6 +7,7 @@ import (
 	//"github.com/envoyproxy/go-control-plane/envoy/api/v2"
 	discovery "github.com/envoyproxy/go-control-plane/envoy/service/discovery/v2"
 	"github.com/golang/glog"
+	"github.com/luguoxiang/envoy-demo/pkg/docker"
 	"github.com/luguoxiang/envoy-demo/pkg/envoy"
 	"github.com/luguoxiang/envoy-demo/pkg/kubernetes"
 	"google.golang.org/grpc"
@@ -35,6 +36,13 @@ func main() {
 		glog.Fatalf("failed to create  K8sResourceManager:%s", err.Error())
 		panic(err.Error())
 	}
+
+	envoyManager, err := docker.NewEnvoyManager(k8sManager)
+	if err != nil {
+		glog.Fatalf("failed to create EnvoyManager:%s", err.Error())
+		panic(err.Error())
+	}
+
 	cds := envoy.NewClustersDiscoveryService()
 	eds := envoy.NewEndpointsDiscoveryService()
 	lds := envoy.NewListenersDiscoveryService()
@@ -42,7 +50,7 @@ func main() {
 
 	ads := envoy.NewAggregatedDiscoveryService(cds, eds, lds, rds)
 	stopper := make(chan struct{})
-	go k8sManager.WatchPods(stopper, cds, eds, lds)
+	go k8sManager.WatchPods(stopper, cds, eds, lds, envoyManager)
 
 	//v2.RegisterEndpointDiscoveryServiceServer(grpcServer, eds)
 	//v2.RegisterClusterDiscoveryServiceServer(grpcServer, cds)

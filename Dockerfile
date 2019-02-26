@@ -14,11 +14,13 @@ RUN dep ensure -vendor-only -v
 ADD cmd cmd
 ADD pkg pkg
 RUN go build -o envoy_server cmd/envoy_server.go
+RUN go build -o envoy_manage cmd/envoy_manage.go
 
 # final stage
 FROM golang:alpine
 WORKDIR /app
 COPY --from=build-env /go/src/github.com/luguoxiang/envoy-demo/envoy_server /app/
+COPY --from=build-env /go/src/github.com/luguoxiang/envoy-demo/envoy_manage /app/
 ENV https_proxy ""
 ENV http_proxy ""
 CMD ./envoy_server -alsologtostderr

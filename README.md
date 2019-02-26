@@ -5,26 +5,15 @@ kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.0/sampl
 ```
 
 # Quick start
-## Run envoy-proxy/run_docker.sh
+## Start envoy for pod
 ```
-kubectl get pod (pod_name) -o=jsonpath='{.status.containerStatuses[0].containerID}'
-sh envoy-proxy/run_docker.sh (docker_id) (pod_name) (service_name)
-```
-for example:
-```
-$ kubectl get pod productpage-v1-54d799c966-hhw5d -o=jsonpath='{.status.containerStatuses[0].containerID}'
-docker://249adedbca3900acc33b63db724a85c0f2b38fb6a6c9a970530f929cc4c3dd9c
-$ sh envoy-proxy/run_docker.sh 249adedbca3900acc33b63db724a85c0f2b38fb6a6c9a970530f929cc4c3dd9c productpage productpage-v1-54d799c966-hhw5d
-```
-Note that envoy-proxy/run_docker.sh must be run on the node of the pod, check NODE column of the command result:
-```
-kubectl get pod (pod_name) -o wide
-```
+kubectl annotate pod (pod_name) "demo.envoy.enabled=true"
 
 ## List running envoy and check log
 ```
-docker ps --filter "label=envoy.demo"
-docker logs (docker_id)
+kubectl exec envoy-demo-kdkmr -- ./envoy_manage -list
+export ID=$(kubectl get pod (envoy enabled pod) -o=jsonpath='{.metadata.annotations.demo\.envoy\.proxy}')
+kubectl exec envoy-demo-kdkmr -- ./envoy_manage -id ${ID} -log
 ```
 
 ## Query bookinfo service

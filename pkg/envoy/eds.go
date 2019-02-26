@@ -64,7 +64,7 @@ func NewEndpointsDiscoveryService() *EndpointsDiscoveryService {
 	}
 }
 func (eds *EndpointsDiscoveryService) updateResource(pod *kubernetes.PodInfo, remove bool) {
-	app := pod.Labels["app"]
+	app := pod.App()
 
 	port := DemoAppSet[app]
 	if port == 0 || pod.PodIP == "" {

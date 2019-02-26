@@ -1,10 +1,12 @@
 package kubernetes
 
 import (
+	"encoding/json"
 	"k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/fields"
-
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/fields"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/cache"
@@ -46,6 +48,42 @@ func (manager *K8sResourceManager) GetServiceClusterIP(name string, namespace st
 	}
 	return service.Spec.ClusterIP, nil
 }
+
+func (manager *K8sResourceManager) GetPodAnnotation(key string, podInfo *PodInfo) (string, error) {
+	rawPod, err := manager.clientSet.CoreV1().Pods(podInfo.Namespace).Get(podInfo.Name, metav1.GetOptions{})
+	if err != nil {
+		return "", err
+	}
+	if rawPod.Annotations != nil {
+		return rawPod.Annotations[key], nil
+	}
+	return "", nil
+}
+
+func (manager *K8sResourceManager) PodExists(name string, ns string) (bool, error) {
+	_, err := manager.clientSet.CoreV1().Pods(ns).Get(name, metav1.GetOptions{})
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			return false, nil
+		}
+		return false, err
+	}
+
+	return true, nil
+}
+
+func (manager *K8sResourceManager) SetPodAnnotation(annotations map[string]string, podInfo *PodInfo) error {
+	payload := map[string]interface{}{
+		"metadata": map[string]interface{}{
+			"annotations": annotations,
+		},
+	}
+
+	payloadBytes, _ := json.Marshal(payload)
+	_, err := manager.clientSet.CoreV1().Pods(podInfo.Namespace).Patch(podInfo.Name, types.MergePatchType, payloadBytes)
+	return err
+}
+
 func (manager *K8sResourceManager) WatchPods(stopper chan struct{}, handlers ...PodEventHandler) {
 	watchlist := cache.NewListWatchFromClient(
 		manager.clientSet.Core().RESTClient(), "pods", "",

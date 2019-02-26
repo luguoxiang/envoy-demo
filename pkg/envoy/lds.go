@@ -23,7 +23,7 @@ func NewListenersDiscoveryService() *ListenersDiscoveryService {
 }
 
 func (lds *ListenersDiscoveryService) updateResource(pod *kubernetes.PodInfo, remove bool) {
-	app := pod.Labels["app"]
+	app := pod.App()
 
 	port := DemoAppSet[app]
 	if port == 0 {

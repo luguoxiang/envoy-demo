@@ -1,5 +1,5 @@
 apiVersion: extensions/v1beta1
-kind: Deployment
+kind: DaemonSet
 metadata:
   name: envoy-demo
   labels:
@@ -12,11 +12,26 @@ spec:
     spec:
       containers:
       - name: k8s-view
-        image: luguoxiang/envoy_demo
+        image: docker.io/luguoxiang/envoy_demo
         imagePullPolicy: Always
+        volumeMounts:
+        - name: dockersock
+          mountPath: /var/run/docker.sock
+          readOnly: true
         ports:
         - containerPort: 15010
           name: grpc
+        env:
+        - name: ENVOY_IMAGE
+          value: docker.io/luguoxiang/envoy_proxy
+        - name: MY_HOST_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+      volumes:
+      - name: dockersock
+        hostPath:
+          path: /var/run/docker.sock
 ---
 apiVersion: v1
 kind: Service
