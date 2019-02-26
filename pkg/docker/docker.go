@@ -30,15 +30,8 @@ type DockerInstanceInfo struct {
 }
 
 type DockerClient struct {
-	client              *dockerclient.Client
-	UserName            string
-	Password            string
-	ProxyPort           string
-	ControlPlanePort    string
-	ControlPlaneService string
-	ProxyManagePort     string
-	ProxyUID            string
-	EnvoyImage          string
+	client     *dockerclient.Client
+	EnvoyImage string
 }
 
 func NewDockerClient(pullImage bool) (*DockerClient, error) {
