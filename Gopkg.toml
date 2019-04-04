@@ -1,33 +1,6 @@
-# Gopkg.toml example
-#
-# Refer to https://github.com/golang/dep/blob/master/docs/Gopkg.toml.md
-# for detailed Gopkg.toml documentation.
-#
-# required = ["github.com/user/thing/cmd/thing"]
-# ignored = ["github.com/user/project/pkgX", "bitbucket.org/user/project/pkgA/pkgY"]
-#
-# [[constraint]]
-#   name = "github.com/user/project"
-#   version = "1.0.0"
-#
-# [[constraint]]
-#   name = "github.com/user/project2"
-#   branch = "dev"
-#   source = "github.com/myfork/project2"
-#
-# [[override]]
-#   name = "github.com/x/y"
-#   version = "2.4.0"
-#
-# [prune]
-#   non-go = false
-#   go-tests = true
-#   unused-packages = true
-
-
 [[constraint]]
   name = "github.com/envoyproxy/go-control-plane"
-  version = "0.6.7"
+  version = "0.6.9"
 
 [[constraint]]
   name = "github.com/gogo/protobuf"
@@ -48,3 +21,29 @@
 [prune]
   go-tests = true
   unused-packages = true
+
+[[override]]
+  name = "k8s.io/api"
+  revision = "73d903622b7391f3312dcbac6483fed484e185f8"
+  #version = "kubernetes-1.10.1"
+
+[[override]]
+  name = "k8s.io/apimachinery"
+  revision = "302974c03f7e50f16561ba237db776ab93594ef6"
+  #version = "kubernetes-1.10.1"
+
+[[override]]
+  name = "k8s.io/client-go"
+  #version = "kubernetes-1.10.1"
+  revision = "989be4278f353e42f26c416c53757d16fcff77db"
+
+[[override]]
+  name = "k8s.io/kubernetes"
+  #version = "kubernetes-1.10.1"
+  revision = "d4ab47518836c750f9949b9e0d387f20fb92260b"
+
+[[override]]
+  name = "k8s.io/apiserver"
+  #version = "kubernetes-1.10.1"
+  revision = "06e4be4fafa2c9356e02424aac4e714e2ebeff60"
+

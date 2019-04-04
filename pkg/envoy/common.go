@@ -23,20 +23,6 @@ const (
 	ListenerResource      = typePrefix + "Listener"
 	RouterHttpFilter      = "envoy.router"
 	HTTPConnectionManager = "envoy.http_connection_manager"
-	ENVOY_PROXY_PORT      = 10000
-)
-
-const (
-	APP_NAMESPACE = "default"
-)
-
-var (
-	DemoAppSet = map[string]uint32{
-		"productpage": 9080,
-		"reviews":     9080,
-		"ratings":     9080,
-		"details":     9080,
-	}
 )
 
 type EnvoyResource interface {

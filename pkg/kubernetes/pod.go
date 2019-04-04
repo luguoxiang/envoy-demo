@@ -12,6 +12,25 @@ const (
 	ENVOY_PROXY_ANNOTATION     = "demo.envoy.proxy"
 	ENVOY_ENABLE_ANNOTATION    = "demo.envoy.enabled"
 	DEFAULT_WEIGHT             = 100
+
+	APP_NAMESPACE         = "default"
+	APP_PORT              = 9080
+	CONTROL_PLANE_PORT    = 15010
+	CONTROL_PLANE_SERVICE = "envoy-demo"
+	MANAGE_PORT           = 15000
+	ENVOY_LISTEN_PORT     = 10000
+	PROXY_UID             = 1337
+	ZIPKIN_SERVICE        = "zipkin"
+	ZIPKIN_PORT           = 9411
+)
+
+var (
+	DemoAppSet = map[string]uint32{
+		"productpage": APP_PORT,
+		"reviews":     APP_PORT,
+		"ratings":     APP_PORT,
+		"details":     APP_PORT,
+	}
 )
 
 type PodInfo struct {

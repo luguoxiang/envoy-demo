@@ -77,6 +77,6 @@ func (ads *AggregatedDiscoveryService) StreamAggregatedResources(stream discover
 	return nil
 }
 
-func (ads *AggregatedDiscoveryService) IncrementalAggregatedResources(discovery.AggregatedDiscoveryService_IncrementalAggregatedResourcesServer) error {
-	return fmt.Errorf("Not supported")
+func (ads *AggregatedDiscoveryService) DeltaAggregatedResources(discovery.AggregatedDiscoveryService_DeltaAggregatedResourcesServer) error {
+	return nil
 }

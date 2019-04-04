@@ -38,7 +38,7 @@ func NewRoutesDiscoveryService(k8sManager *kubernetes.K8sResourceManager) *Route
 		k8sManager:       k8sManager,
 	}
 	portMap := make(map[uint32]*RouteInfo)
-	for service, port := range DemoAppSet {
+	for service, port := range kubernetes.DemoAppSet {
 		routeInfo := portMap[port]
 		if routeInfo == nil {
 			routeInfo = &RouteInfo{
@@ -70,8 +70,8 @@ func (rds *RoutesDiscoveryService) BuildResource(resourceMap map[string]EnvoyRes
 		for _, host := range routeInfo.hosts {
 			var domains []string
 			domains = append(domains, fmt.Sprintf("%s:%s", host, port))
-			domains = append(domains, fmt.Sprintf("%s.%s:%s", host, APP_NAMESPACE, port))
-			clusterIp, err := rds.k8sManager.GetServiceClusterIP(host, APP_NAMESPACE)
+			domains = append(domains, fmt.Sprintf("%s.%s:%s", host, kubernetes.APP_NAMESPACE, port))
+			clusterIp, err := rds.k8sManager.GetServiceClusterIP(host, kubernetes.APP_NAMESPACE)
 			if err == nil && clusterIp != "" {
 				domains = append(domains, fmt.Sprintf("%s:%s", clusterIp, port))
 			}

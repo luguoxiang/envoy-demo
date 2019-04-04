@@ -1,21 +1,13 @@
 # Install 
 ```
 kubectl apply -f deploy.yaml
+
+#wait all pods ready
+
 kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.0/samples/bookinfo/platform/kube/bookinfo.yaml
 ```
 
 # Quick start
-## Start envoy for pod
-```
-kubectl annotate pod (pod_name) "demo.envoy.enabled=true"
-```
-## List running envoy and check log
-```
-kubectl exec envoy-demo-kdkmr -- ./envoy_manage -list
-export ID=$(kubectl get pod (envoy enabled pod) -o=jsonpath='{.metadata.annotations.demo\.envoy\.proxy}')
-kubectl exec envoy-demo-kdkmr -- ./envoy_manage -id ${ID} -log
-```
-
 ## Query bookinfo service
 ```
 kubectl run demo-client --image tutum/curl curl productpage:9080/productpage --restart=OnFailure

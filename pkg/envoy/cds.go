@@ -57,7 +57,7 @@ func NewClustersDiscoveryService() *ClustersDiscoveryService {
 func (cds *ClustersDiscoveryService) updateResource(pod *kubernetes.PodInfo, remove bool) {
 	app := pod.App()
 
-	port := DemoAppSet[app]
+	port := kubernetes.DemoAppSet[app]
 	if port == 0 || pod.PodIP == "" {
 		return
 	}
@@ -94,10 +94,6 @@ func (cds *ClustersDiscoveryService) FetchClusters(ctx context.Context, req *v2.
 	return cds.FetchResource(req, cds.BuildResource)
 }
 
-func (cds *ClustersDiscoveryService) IncrementalClusters(v2.ClusterDiscoveryService_IncrementalClustersServer) error {
-	return fmt.Errorf("Not supported")
-}
-
 func (cds *ClustersDiscoveryService) BuildResource(resourceMap map[string]EnvoyResource, version string, node *core.Node) (*v2.DiscoveryResponse, error) {
 	var clusters []proto.Message
 
@@ -110,7 +106,9 @@ func (cds *ClustersDiscoveryService) BuildResource(resourceMap map[string]EnvoyR
 			serviceCluster = &v2.Cluster{
 				Name:           clusterInfo.Name(),
 				ConnectTimeout: connectionTimeout,
-				Type:           v2.Cluster_STATIC,
+				ClusterDiscoveryType: &v2.Cluster_Type{
+					Type: v2.Cluster_STATIC,
+				},
 				Hosts: []*core.Address{
 					&core.Address{
 						Address: &core.Address_SocketAddress{
@@ -129,7 +127,9 @@ func (cds *ClustersDiscoveryService) BuildResource(resourceMap map[string]EnvoyR
 			serviceCluster = &v2.Cluster{
 				Name:           clusterInfo.Name(),
 				ConnectTimeout: connectionTimeout,
-				Type:           v2.Cluster_EDS,
+				ClusterDiscoveryType: &v2.Cluster_Type{
+					Type: v2.Cluster_EDS,
+				},
 				EdsClusterConfig: &v2.Cluster_EdsClusterConfig{
 					EdsConfig: &core.ConfigSource{
 						ConfigSourceSpecifier: &core.ConfigSource_Ads{

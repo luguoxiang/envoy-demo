@@ -25,7 +25,7 @@ func NewListenersDiscoveryService() *ListenersDiscoveryService {
 func (lds *ListenersDiscoveryService) updateResource(pod *kubernetes.PodInfo, remove bool) {
 	app := pod.App()
 
-	port := DemoAppSet[app]
+	port := kubernetes.DemoAppSet[app]
 	if port == 0 {
 		return
 	}
@@ -113,7 +113,7 @@ func (lds *ListenersDiscoveryService) CreateVirtualListener() *v2.Listener {
 					Protocol: core.TCP,
 					Address:  "0.0.0.0",
 					PortSpecifier: &core.SocketAddress_PortValue{
-						PortValue: ENVOY_PROXY_PORT,
+						PortValue: kubernetes.ENVOY_LISTEN_PORT,
 					},
 				},
 			},
